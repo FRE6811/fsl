@@ -263,15 +263,16 @@ int test_fsl_bsm_put_value()
 // TODO: Implement BSM.PUT.VALUE
 // 
 
-// B-S/M delta is d/dS exp(-r t) E[max(k - S_t, 0)] = E[-1(S_t <= k) dS_t/dS]
-// dS_t/dS = exp((r - sigma^2/2) t + sigma B_t) ~ exp(r t) exp(s Z - s^2/2)
+// B-S/M delta is d/ds0 exp(-r t) E[max(k - S_t, 0)] = exp(-r t) E[-1(S_t <= k) dS_t/dS]
+// dS_t/ds0 = exp((r - sigma^2/2) t + sigma B_t) ~ exp(r t) exp(s Z - s^2/2)
+// so d/ds0 exp(-r t) E[max(k - S_t, 0)] = d/df E[max(k - F, 0)].
 
 //
-// TODO: Implement fsl_bsm_put_delta in C++
+// TODO: Implement fsl_bsm_put_delta using fsl_black_put_delta.
 // 
-// TODO: Implement test_fsl_bsm_put_delta in C++
+// TODO: Implement test_fsl_bsm_put_delta.
 //
-// TODO: Implement the BSM.PUT.DELTA add-in
+// TODO: Implement the BSM.PUT.DELTA add-in.
 //
 
 // Run tests on xlAutoOpen
