@@ -77,9 +77,9 @@ int test_fsl_black_moneyness()
 AddIn xai_black_moneyness(
 	Function(XLL_DOUBLE, L"?xll_black_moneyness", L"BLACK.MONEYNESS")
 	.Arguments({
-		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset."),
-		Arg(XLL_DOUBLE, L"s", L"is the vol."),
-		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option."),
+		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset.", 100),
+		Arg(XLL_DOUBLE, L"s", L"is the vol.", .1),
+		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option.", 100),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp(L"Return the Black moneyness of an option, defined as (log(k/f) + s^2/2)/s.")
@@ -128,9 +128,9 @@ int test_fsl_black_put_value()
 AddIn xai_black_put_value(
 	Function(XLL_DOUBLE, L"?xll_black_put_value", L"BLACK.PUT.VALUE")
 	.Arguments({
-		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset."),
-		Arg(XLL_DOUBLE, L"s", L"is the vol."),
-		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option."),
+		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset.", 100),
+		Arg(XLL_DOUBLE, L"s", L"is the vol.", .1),
+		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option.", 100),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp(L"Return the forward Black put value of an option E[max{k - F, 0}]"
@@ -179,9 +179,9 @@ int test_fsl_black_put_delta()
 AddIn xai_black_put_delta(
 	Function(XLL_DOUBLE, L"?xll_black_put_delta", L"BLACK.PUT.DELTA")
 	.Arguments({
-		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset."),
-		Arg(XLL_DOUBLE, L"s", L"is the vol."),
-		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option."),
+		Arg(XLL_DOUBLE, L"f", L"is the forward price of the underlying asset.", 100),
+		Arg(XLL_DOUBLE, L"s", L"is the vol.", .1),
+		Arg(XLL_DOUBLE, L"k", L"is the strike price of the option.", 100),
 		})
 		.Category(CATEGORY)
 	.FunctionHelp(L"Return the forward Black put delta of an option E[max{k - F, 0}]"
@@ -206,7 +206,7 @@ double WINAPI xll_black_put_delta(double f, double s, double k)
 // Put value is exp(-r t) E[max{k - S_t, 0}]
 // If F = S_t then f = s0 exp(r t) and s = sigma sqrt(t).
 // Convert Black-Scholes/Merton parameters to Black model.
-std::tuple<double, double, double> fsl_bsm_black(double r, double s0, double sigma, double t)
+std::tuple<double, double, double> fsl_black_bsm(double r, double s0, double sigma, double t)
 {
 	if (s0 <= 0 || sigma <= 0 || t <= 0) {
 		throw std::runtime_error("s0, sigma, and t must be positive");
@@ -217,7 +217,7 @@ std::tuple<double, double, double> fsl_bsm_black(double r, double s0, double sig
 
 	return { D, f, s };
 }
-int test_fsl_bsm_black()
+int test_fsl_black_bsm()
 {
 	{
 		double data[][7] = {
@@ -227,7 +227,7 @@ int test_fsl_bsm_black()
 			// ...more tests here...
 		};
 		for (auto [r, s0, sigma, t, D, f, s] : data) {
-			auto [D_, f_, s_] = fsl_bsm_black(r, s0, sigma, t);
+			auto [D_, f_, s_] = fsl_black_bsm(r, s0, sigma, t);
 			assert(D == D_);
 			assert(f == f_);
 			assert(s == s_);
@@ -238,7 +238,7 @@ int test_fsl_bsm_black()
 
 double fsl_bsm_put_value(double r, double s0, double sigma, double t, double k)
 {
-	auto [D, f, s] = fsl_bsm_black(r, s0, sigma, t);
+	auto [D, f, s] = fsl_black_bsm(r, s0, sigma, t);
 
 	return D * fsl_black_put_value(f, s, k);
 }
@@ -282,7 +282,7 @@ Auto<Open> xao_fsl_test([]() {
 		test_fsl_black_moneyness();
 		test_fsl_black_put_value();
 		test_fsl_black_put_delta();
-		test_fsl_bsm_black();
+		test_fsl_black_bsm();
 		test_fsl_bsm_put_value();
 		//test_fsl_bsm_put_delta();
 	}
