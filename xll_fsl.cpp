@@ -157,19 +157,25 @@ double fsl_black_put_delta(double f, double s, double k)
 {
 	double z = fsl_black_moneyness(f, s, k);
 
-	return - f * normal_cdf(z - s);
+	return - normal_cdf(z - s);
 }
 int test_fsl_black_put_delta()
 {
 	{
 		double data[][4] = {
 			// f, s, k, p 
-			{100, .1, 100, -48.006119416162754},
+			{100, .1, 100, -0.48006119416162754},
 			// ...more tests here...
 		};
+		double eps = 1e-4;
 		for (auto [f, s, k, p] : data) {
 			double p_ = fsl_black_put_delta(f, s, k);
 			assert(p == p_);
+
+			// Symmetric difference quotient for numerical derivative.
+			double dp = (fsl_black_put_value(f + eps, s, k) - fsl_black_put_value(f - eps, s, k)) / (2 * eps);
+			double err = p_ - dp;
+			assert(fabs(err) <= eps * eps);
 		}
 	}
 
@@ -265,7 +271,8 @@ int test_fsl_bsm_put_value()
 
 // B-S/M delta is d/ds0 exp(-r t) E[max(k - S_t, 0)] = exp(-r t) E[-1(S_t <= k) dS_t/dS]
 // dS_t/ds0 = exp((r - sigma^2/2) t + sigma B_t) ~ exp(r t) exp(s Z - s^2/2)
-// so d/ds0 exp(-r t) E[max(k - S_t, 0)] = d/df E[max(k - F, 0)].
+// so d/ds0 exp(-r t) E[max(k - S_t, 0)] = d/df E[max(k - F, 0)]
+// and B-S/M delta is the same as Black delta.
 
 //
 // TODO: Implement fsl_bsm_put_delta using fsl_black_put_delta.
