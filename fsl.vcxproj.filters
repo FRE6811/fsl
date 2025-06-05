@@ -18,6 +18,12 @@
     <ClInclude Include="fsl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fsl_variate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsl_black.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xll_fsl.cpp">
