@@ -129,7 +129,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="fsl.h" />
+    <ClInclude Include="xll_fsl.h" />
+    <ClInclude Include="fsl_black.h" />
+    <ClInclude Include="fsl_variate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xll_fsl.cpp" />

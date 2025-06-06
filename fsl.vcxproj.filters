@@ -15,7 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="fsl.h">
+    <ClInclude Include="xll_fsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsl_variate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsl_black.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
