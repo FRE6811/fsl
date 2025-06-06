@@ -3,6 +3,7 @@
 #include <cmath>
 #include <tuple>
 #include <functional>
+#include <numbers>
 #include <random>
 
 namespace fsl
@@ -43,6 +44,11 @@ namespace fsl
 		}
 
 		return 0;
+	}
+
+	double normal_pdf(double z)
+	{
+		return std::exp(-0.5 * z * z) / std::sqrt(2 * std::numbers::pi);
 	}
 
 	// NVI (Non-Virtual Interface) idiom for variate generation.

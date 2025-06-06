@@ -1,7 +1,7 @@
 #include <cassert>
 #include "fsl_variate.h"
 #include "fsl_black.h"
-#include "fsl.h"
+#include "xll_fsl.h"
 
 
 using namespace xll;
@@ -59,37 +59,6 @@ double WINAPI xll_black_put_value(double f, double s, double k)
 	return result;
 }
 
-// (d/df) E[max(k - F, 0)] = E[-1(F <= k) dF/df]
-// dF/df = exp(s Z - s^2/2).
-double fsl_black_put_delta(double f, double s, double k)
-{
-	double z = fsl::black_moneyness(f, s, k);
-
-	return - fsl::normal_cdf(z - s);
-}
-int test_fsl_black_put_delta()
-{
-	{
-		double data[][4] = {
-			// f, s, k, p 
-			{100, .1, 100, -0.48006119416162754},
-			// ...more tests here...
-		};
-		double eps = 1e-4;
-		for (auto [f, s, k, p] : data) {
-			double p_ = fsl_black_put_delta(f, s, k);
-			assert(p == p_);
-
-			// Symmetric difference quotient for numerical derivative.
-			double dp = (fsl::black_put_value(f + eps, s, k) - fsl::black_put_value(f - eps, s, k)) / (2 * eps);
-			double err = p_ - dp;
-			assert(fabs(err) <= eps * eps);
-		}
-	}
-
-	return 0;
-}
-
 AddIn xai_black_put_delta(
 	Function(XLL_DOUBLE, L"?xll_black_put_delta", L"BLACK.PUT.DELTA")
 	.Arguments({
@@ -107,7 +76,7 @@ double WINAPI xll_black_put_delta(double f, double s, double k)
 	double result = std::numeric_limits<double>::quiet_NaN();
 
 	try {
-		result = fsl_black_put_delta(f, s, k);
+		result = fsl::black_put_delta(f, s, k);
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -115,6 +84,8 @@ double WINAPI xll_black_put_delta(double f, double s, double k)
 
 	return result;
 }
+
+// TODO: Implement Black put vega
 
 // Black-Scholes/Merton S_t = s0 exp((r - sigma^2/2) t + sigma B_t) where B_t is a standard Brownian motion.
 // Put value is exp(-r t) E[max{k - S_t, 0}]
@@ -207,7 +178,7 @@ double WINAPI xll_bsm_put_value(double r, double s0, double sigma, double t, dou
 double fsl_bsm_put_delta(double r, double s0, double sigma, double t, double k)
 {
 	auto [D, f, s] = fsl_black_bsm(r, s0, sigma, t);
-	return fsl_black_put_delta(f, s, k);
+	return fsl::black_put_delta(f, s, k);
 }
 int test_fsl_bsm_put_delta()
 {
@@ -251,17 +222,20 @@ double WINAPI xll_bsm_put_delta(double r, double s0, double sigma, double t, dou
 	return result;
 }
 
+// TODO: Implement BSM.PUT.VEGA
+// (d/dsigma) exp(-r t) E[max(k - F, 0)] = exp(-r t) d/ds E[max(k - F, 0)] ds/dsigma
 
 // Run tests on xlAutoOpen
 Auto<Open> xao_fsl_test([]() {
 	try {
 		fsl::test_normal_cdf();
-		fsl::test_fsl_black_moneyness();
-		fsl::test_fsl_black_put_value();
-		test_fsl_black_put_delta();
+		fsl::test_black_moneyness();
+		fsl::test_black_put_value();
+		fsl::test_black_put_delta();
 		test_fsl_black_bsm();
 		test_fsl_bsm_put_value();
 		test_fsl_bsm_put_delta();
+		//fsl::test_black_put_vega();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -274,3 +248,5 @@ Auto<Open> xao_fsl_test([]() {
 
 	return TRUE;
 });
+
+// TODO: Implement spreadsheet to test BSM.PUT.DELTA and BSM.PUT.VEGA using symmetric difference quotient.

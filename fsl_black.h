@@ -17,7 +17,7 @@ namespace fsl {
 
 		return (std::log(k / f) + s * s / 2) / s;
 	}
-	int test_fsl_black_moneyness()
+	int test_black_moneyness()
 	{
 		{
 			// Test exception.
@@ -62,7 +62,7 @@ namespace fsl {
 
 		return k * fsl::normal_cdf(z) - f * fsl::normal_cdf(z - s);
 	}
-	int test_fsl_black_put_value()
+	int test_black_put_value()
 	{
 		{
 			double data[][4] = {
@@ -79,4 +79,39 @@ namespace fsl {
 		return 0;
 	}
 
+	// (d/df) E[max(k - F, 0)] = E[-1(F <= k) dF/df]
+	// dF/df = exp(s Z - s^2/2).
+	double black_put_delta(double f, double s, double k)
+	{
+		double z = fsl::black_moneyness(f, s, k);
+
+		return -fsl::normal_cdf(z - s);
+	}
+
+	int test_black_put_delta()
+	{
+		{
+			double data[][4] = {
+				// f, s, k, p 
+				{100, .1, 100, -0.48006119416162754},
+				// ...more tests here...
+			};
+			double eps = 1e-4;
+			for (auto [f, s, k, p] : data) {
+				double p_ = black_put_delta(f, s, k);
+				assert(p == p_);
+
+				// Symmetric difference quotient for numerical derivative.
+				double dp = (black_put_value(f + eps, s, k) - black_put_value(f - eps, s, k)) / (2 * eps);
+				double err = p_ - dp;
+				assert(fabs(err) <= eps * eps);
+			}
+		}
+
+		return 0;
+	}
+
+	// TODO: implement Black put vega.
+	// (d/ds) E[max(k - F, 0)] = f normal_pdf(z - s)
+	// TODO: int test_black_put_vega();
 }

@@ -1,5 +1,5 @@
-// fsl.h - Financial Software Library
-// #pragma once
+// xll_fsl.h - Common Excel header for Financial Software Library
+#pragma once
 #include "xll24/include/xll.h"
 
 #ifndef CATEGORY
