@@ -1,5 +1,6 @@
 // fsl_variate.h - Header file for random variate generation
 #pragma once
+#include <cassert>
 #include <cmath>
 #include <tuple>
 #include <functional>
@@ -50,42 +51,4 @@ namespace fsl
 	{
 		return std::exp(-0.5 * z * z) / std::sqrt(2 * std::numbers::pi);
 	}
-
-	// NVI (Non-Virtual Interface) idiom for variate generation.
-	struct variate {
-		~variate() = default;
-		// Cumulative share distribution.
-		double cdf(double x, double s) const
-		{
-			return cdf_(x, s);
-		}
-		// Share density function (PDF) for the variate.
-		double pdf(double x, double s) const
-		{
-			return pdf_(x, s);
-		}
-		// E[exp(s X)] - Moment generating function.
-		double mgf(double s) const
-		{
-			return mgf_(s); // Moment generating function	
-		}
-		// log(E[exp(s X)]) - Cumulant generating function.
-		double cgf(double s) const
-		{
-			return cgf_(s); // Cumulant generating function
-		}	
-	private:
-		virtual double cdf_(double x, double s) const = 0; // pure virtual function
-		virtual double pdf_(double x, double s) const = 0; // pure virtual function
-		virtual double mgf_(double s) const = 0; // moment generating function
-		virtual double cgf_(double s) const = 0; // cumulant generating function
-	};
-
-	struct normal : public variate {
-		double cdf_(double x, double s) const override
-		{
-			return normal_cdf(x / s); // TODO: fix
-		}
-
-	};
 }
