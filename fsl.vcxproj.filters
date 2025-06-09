@@ -18,10 +18,13 @@
     <ClInclude Include="xll_fsl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fsl_variate.h">
+    <ClInclude Include="fsl_normal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fsl_black.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsl_monte.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

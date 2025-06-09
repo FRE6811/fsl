@@ -1,8 +1,9 @@
-// fsl_black.h - Header file for the Black model.
+// fsl_black.h - Header file for the Fischer Black model.
 #pragma once
 #include <cassert>
 #include <cmath>
 #include <stdexcept>
+#include "fsl_normal.h"
 
 namespace fsl {
 
@@ -11,8 +12,7 @@ namespace fsl {
 	double black_moneyness(double f, double s, double k)
 	{
 		if (f <= 0 || s <= 0 || k <= 0) {
-			// Use C++ exceptions for error handling.
-			throw std::runtime_error("f, s, and k must be positive");
+			return std::numeric_limits<double>::quiet_NaN(); // Use NaN for errors
 		}
 
 		return (std::log(k / f) + s * s / 2) / s;
@@ -20,7 +20,7 @@ namespace fsl {
 	int test_black_moneyness()
 	{
 		{
-			// Test exception.
+			// Test NaN return code.
 			double data[][3] = {
 				// f, s, k
 				{-1, 1, 1},
@@ -28,14 +28,7 @@ namespace fsl {
 				{1, 1, -1}
 			};
 			for (auto [f, s, k] : data) {
-				bool thrown = false;
-				try {
-					fsl::black_moneyness(f, s, k);
-				}
-				catch (const std::exception&) {
-					thrown = true;
-				}
-				assert(thrown);
+				assert(std::isnan(fsl::black_moneyness(f, s, k)));
 			}
 		}
 		{
@@ -111,7 +104,68 @@ namespace fsl {
 		return 0;
 	}
 
-	// TODO: implement Black put vega.
 	// (d/ds) E[max(k - F, 0)] = f normal_pdf(z - s)
-	// TODO: int test_black_put_vega();
+	double black_put_vega(double f, double s, double k)
+	{
+		double z = fsl::black_moneyness(f, s, k);
+
+		return f * fsl::normal_pdf(z - s);
+	}
+	int test_black_put_vega()
+	{
+		{
+			double data[][4] = {
+				// f, s, k, v 
+				{100, .1, 100, 39.844391409476401},
+				// ...more tests here...
+			};
+			double eps = 1e-4;
+			for (auto [f, s, k, v] : data) {
+				double v_ = black_put_vega(f, s, k);
+				assert(v == v_);
+				// Symmetric difference quotient for numerical derivative.
+				double dv = (black_put_value(f, s + eps, k) - black_put_value(f, s - eps, k)) / (2 * eps);
+				double err = v_ - dv;
+				assert(fabs(err) <= 2 * eps * eps);
+			}
+		}
+		return 0;
+	}
+
+	// Black implied volatility for put option.
+	double black_put_implied(double f, double p, double k, double s = 0.1, double eps = 1e-8, unsigned iter = 100)
+	{
+		do {
+			// Newton-Raphson method.
+			double s_ = s - (black_put_value(f, s, k) - p) / black_put_vega(f, s, k);
+			if (s_ <= 0) {
+				s_ = s / 2;
+			}
+			if (fabs(s_ - s) < eps) {
+				s = s_;
+				break;
+			}
+			s = s_;
+		} while (--iter);
+
+		return s;
+	}
+	int test_black_put_implied()
+	{
+		{
+			double data[][3] = {
+				{100, .2, 100},
+				{100, .05, 100},
+				{100, .1, 90},
+				{100, .15, 110},
+			};
+			for (auto [f, s, k] : data) {
+				double p = black_put_value(f, s, k);
+				double s_ = black_put_implied(f, p, k);
+				assert(fabs(s - s_) < 1e-7); // Check if implied volatility matches input
+			}
+		}
+
+		return 0;
+	}
 }

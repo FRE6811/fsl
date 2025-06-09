@@ -6,23 +6,10 @@
 #include <functional>
 #include <numbers>
 #include <random>
+#include "fsl_monte.h"
 
 namespace fsl
 {
-	// Return mean and standard deviation of a variate.
-	std::tuple<double, double> monte(const std::function<double()>& f, int N)
-	{
-		double m = 0.0; // mean
-		double s2 = 0.0; // variance
-		for (int n = 1; n <= N; ++n) {
-			double xn = f();
-			m += (xn - m) / n; // Welford's method for mean
-			s2 += (xn * xn - s2) / n;
-		}
-
-		return { m, std::sqrt(s2 - m * m) };
-
-	}
 	// Standard normal cumulative distribution function P(Z <= z).
 	// https://en.wikipedia.org/wiki/Error_function#Cumulative_distribution_function
 	double normal_cdf(double z)
@@ -38,8 +25,8 @@ namespace fsl
 			double zs[] = { -2, -1, 0, 1, 2 };
 			for (double z : zs) {
 				double cdf = normal_cdf(z);
-				auto [m, s] = monte([&]() { return 1*(nd(dre) <= z); }, 1'000'000);
-				//double err = (cdf - m) / s;
+				auto [m, s2] = monte([&]() { return 1*(nd(dre) <= z); }, 1'000'000);
+				double err = (cdf - m) / std::sqrt(s2);
 				assert(std::abs(cdf - m) < 0.001); 
 			}
 		}
@@ -47,6 +34,7 @@ namespace fsl
 		return 0;
 	}
 
+	// Standard normal probability density function.
 	double normal_pdf(double z)
 	{
 		return std::exp(-0.5 * z * z) / std::sqrt(2 * std::numbers::pi);
