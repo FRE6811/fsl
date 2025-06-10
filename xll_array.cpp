@@ -14,8 +14,8 @@ AddIn xai_array_sequence(
 	.Category(L"XLL")
 	.FunctionHelp(L"Array having one column from start to stop in step increments.")
 	.Documentation(
-		L"For example, <codeInline>ARRAY.SEQUENCE(1, 3)</codeInline> "
-		L"is the array <codeInline>{1;2;3}</codeInline>."
+		L"For example, <code>ARRAY.SEQUENCE(1, 3)</code> "
+		L"is the array <code>{1;2;3}</code>."
 	)
 );
 _FP12* WINAPI
