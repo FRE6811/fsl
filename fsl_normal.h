@@ -2,8 +2,6 @@
 #pragma once
 #include <cassert>
 #include <cmath>
-#include <tuple>
-#include <functional>
 #include <numbers>
 #include <random>
 #include "fsl_monte.h"
@@ -38,5 +36,13 @@ namespace fsl
 	double normal_pdf(double z)
 	{
 		return std::exp(-0.5 * z * z) / std::sqrt(2 * std::numbers::pi);
+	}
+	int test_normal_pdf()
+	{
+		{
+			assert(normal_pdf(0) == 1 / std::sqrt(2 * std::numbers::pi));
+		}
+
+		return 0;
 	}
 }

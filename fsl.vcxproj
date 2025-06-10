@@ -129,12 +129,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="fsl_bsm.h" />
     <ClInclude Include="fsl_monte.h" />
     <ClInclude Include="xll_fsl.h" />
     <ClInclude Include="fsl_black.h" />
     <ClInclude Include="fsl_normal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="xll_array.cpp" />
     <ClCompile Include="xll_fsl.cpp" />
   </ItemGroup>
   <ItemGroup>

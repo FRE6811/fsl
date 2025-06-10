@@ -104,6 +104,40 @@ namespace fsl {
 		return 0;
 	}
 
+
+	// (d/df)^2 E[max(k - F, 0)] = normal_pdf(z - s)/(fs)
+	// dF/df = exp(s Z - s^2/2).
+	double black_put_gamma(double f, double s, double k)
+	{
+		double z = fsl::black_moneyness(f, s, k);
+
+		return fsl::normal_pdf(z - s)/(f*s);
+	}
+	int test_black_put_gamma()
+	{
+		{
+			double data[][4] = {
+				// f, s, k, p 
+				{100, .1, 100, 0.039844391409476404},
+				{100, .1, 90, 0.021698854735122466},
+				{100, .1, 110, 0.026534220086491672},
+				// ...more tests here...
+			};
+			double eps = 1e-4;
+			for (auto [f, s, k, p] : data) {
+				double p_ = black_put_gamma(f, s, k);
+				//assert(p == p_);
+
+				// Symmetric difference quotient for numerical derivative.
+				double dp = (black_put_delta(f + eps, s, k) - black_put_delta(f - eps, s, k)) / (2 * eps);
+				double err = p_ - dp;
+				assert(fabs(err) <= eps * eps);
+			}
+		}
+
+		return 0;
+	}
+
 	// (d/ds) E[max(k - F, 0)] = f normal_pdf(z - s)
 	double black_put_vega(double f, double s, double k)
 	{
