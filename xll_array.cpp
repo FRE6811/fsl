@@ -3,7 +3,6 @@
 
 using namespace xll;
 
-
 AddIn xai_array_sequence(
 	Function(XLL_FP, L"?xll_array_sequence", L"ARRAY.SEQUENCE")
 	.Arguments({
