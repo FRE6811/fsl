@@ -7,6 +7,8 @@
 namespace fsl {
 
 	// Return sample mean and variance of a variate.
+	// m_n = (x_1 + ... + x_n) / n
+	// s2_n = (x_1^2 + ... + x_n^2) / n
 	inline std::tuple<double, double> monte(const std::function<double()>& f, int N)
 	{
 		double m = 0.0; // mean
@@ -17,7 +19,7 @@ namespace fsl {
 			s2 += (xn * xn - s2) / n;
 		}
 
-		return { m, s2 - m * m };
+		return { m, s2 - m * m }; // {E[X}, Var[X] = E[X^2] - E[X]^2
 	}
 
 	constexpr std::tuple<double, double> monte(const std::initializer_list<double>& x)

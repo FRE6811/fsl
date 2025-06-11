@@ -1,4 +1,4 @@
-// fsl_variate.h - Header file for random variate generation
+// fsl_normal.h - Header file for random variate generation
 #pragma once
 #include <cassert>
 #include <cmath>
@@ -25,7 +25,7 @@ namespace fsl
 				double cdf = normal_cdf(z);
 				auto [m, s2] = monte([&]() { return 1*(nd(dre) <= z); }, 1'000'000);
 				double err = (cdf - m) / std::sqrt(s2);
-				assert(std::abs(cdf - m) < 0.001); 
+				assert(std::abs(err) < 0.002); 
 			}
 		}
 
