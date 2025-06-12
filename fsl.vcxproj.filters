@@ -32,10 +32,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="xll_fsl.cpp">
+    <ClCompile Include="xll_black.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xll_array.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xll_bsm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

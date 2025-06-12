@@ -113,10 +113,6 @@ double WINAPI xll_black_put_implied(double f, double p, double k)
 	return result;
 }
 
-// dS_t/ds0 = exp((r - sigma^2/2) t + sigma B_t) ~ exp(r t) exp(s Z - s^2/2)
-// so d/ds0 exp(-r t) E[max(k - S_t, 0)] = d/df E[max(k - F, 0)]
-// and B-S/M delta is the same as Black delta.
-
 // Run tests on xlAutoOpen
 Auto<Open> xao_fsl_test([]() {
 	try {
@@ -130,7 +126,7 @@ Auto<Open> xao_fsl_test([]() {
 		test_black_put_vega();
 		test_black_put_implied();
 		test_black_bsm();
-		//test_fsl_bsm_put_value();
+		test_bsm_put_value();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
@@ -143,5 +139,3 @@ Auto<Open> xao_fsl_test([]() {
 
 	return TRUE;
 });
-
-// TODO: Implement spreadsheet to test BSM.PUT.DELTA and BSM.PUT.VEGA using symmetric difference quotient.

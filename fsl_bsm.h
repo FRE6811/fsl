@@ -44,7 +44,19 @@ namespace fsl {
 		
 		return D * fsl::black_put_value(f, s, k);
 	}
+	int test_bsm_put_value()
+	{
+		double data[][6] = {
+			// r, s0, sigma, t, k, p
+			{0.05, 100, 0.2, 1, 100, 5.5735260222569671},
+			// ...more tests here...
+		};
+		for (auto [r, s0, sigma, t, k, p] : data) {
+			double p_ = bsm_put_value(r, s0, sigma, t, k);
+			assert(p == p_);
+		}
 
-	// int test_bsm_put_value()
+		return 0;
+	}
 
 } // namespace fsl
