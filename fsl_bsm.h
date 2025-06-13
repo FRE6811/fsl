@@ -15,7 +15,7 @@ namespace fsl {
 		}
 		double D = exp(-r * t); // Discount factor
 		double f = s0 / D; // Forward price
-		double s = sigma * sqrt(t); // Volatility for Black model
+		double s = sigma * sqrt(t); // Vol for Black model
 
 		return { D, f, s };
 	}
@@ -38,6 +38,7 @@ namespace fsl {
 		return 0;
 	}
 
+	// exp(-r t) E[max{k - S_t, 0}] = exp(-r t) E[max{k - F, 0}]
 	double bsm_put_value(double r, double s0, double sigma, double t, double k)
 	{
 		auto [D, f, s] = black_bsm(r, s0, sigma, t);
@@ -58,5 +59,20 @@ namespace fsl {
 
 		return 0;
 	}
+
+	// TODO: bsm_put_delta and test using black_put_delta
+	// (d/ds0) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/df) E[max{k - F, 0}] dF/ds0
+	// dF/ds0 = exp(r t)
+	// (d/ds0) exp(-r t) E[max{k - S_t, 0}] = (d/df) E[max{k - F, 0}]
+
+	// TODO: bsm_put_gamma and test using black_put_gamma
+	// (d/ds0) bsm_put_delta(r, s0, sigma, t, k) = (d/df) bsm_put_delta(f, s, k) dF/ds0
+
+	// TODO: bsm_put_vega and test using black_put_vega
+	// (d/dsigma) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/ds) E[max{k - F, 0}] ds/dsigma
+	// ds/dsigma = sqrt(t)
+	// (d/dsigma) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/ds) E[max{k - F, 0}] sqrt(t) 
+
+	// TODO: bsm_put_implied and test using black_put_implied.
 
 } // namespace fsl
