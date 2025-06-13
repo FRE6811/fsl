@@ -10,12 +10,12 @@ namespace fsl
 {
 	// Standard normal cumulative distribution function P(Z <= z).
 	// https://en.wikipedia.org/wiki/Error_function#Cumulative_distribution_function
-	double normal_cdf(double z)
+	inline double normal_cdf(double z)
 	{
 		// Cumulative distribution function for the standard normal distribution
 		return 0.5 * (1 + std::erf(z / std::sqrt(2)));
 	}
-	int test_normal_cdf()
+	inline int test_normal_cdf()
 	{
 		{
 			std::default_random_engine dre;
@@ -33,11 +33,11 @@ namespace fsl
 	}
 
 	// Standard normal probability density function.
-	double normal_pdf(double z)
+	inline double normal_pdf(double z)
 	{
 		return std::exp(-0.5 * z * z) / std::sqrt(2 * std::numbers::pi);
 	}
-	int test_normal_pdf()
+	inline int test_normal_pdf()
 	{
 		{
 			assert(normal_pdf(0) == 1 / std::sqrt(2 * std::numbers::pi));

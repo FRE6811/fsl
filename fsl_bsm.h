@@ -8,7 +8,7 @@ namespace fsl {
 	// Put value is exp(-r t) E[max{k - S_t, 0}]
 	// If F = S_t then f = s0 exp(r t) and s = sigma sqrt(t).
 	// Convert Black-Scholes/Merton parameters to Black model.
-	std::tuple<double, double, double> black_bsm(double r, double s0, double sigma, double t)
+	inline std::tuple<double, double, double> black_bsm(double r, double s0, double sigma, double t)
 	{
 		if (s0 <= 0 || sigma <= 0 || t <= 0) {
 			throw std::runtime_error("s0, sigma, and t must be positive");
@@ -19,7 +19,7 @@ namespace fsl {
 
 		return { D, f, s };
 	}
-	int test_black_bsm()
+	inline int test_black_bsm()
 	{
 		{
 			double data[][7] = {
@@ -39,13 +39,13 @@ namespace fsl {
 	}
 
 	// exp(-r t) E[max{k - S_t, 0}] = exp(-r t) E[max{k - F, 0}]
-	double bsm_put_value(double r, double s0, double sigma, double t, double k)
+	inline double bsm_put_value(double r, double s0, double sigma, double t, double k)
 	{
 		auto [D, f, s] = black_bsm(r, s0, sigma, t);
 		
 		return D * fsl::black_put_value(f, s, k);
 	}
-	int test_bsm_put_value()
+	inline int test_bsm_put_value()
 	{
 		double data[][6] = {
 			// r, s0, sigma, t, k, p

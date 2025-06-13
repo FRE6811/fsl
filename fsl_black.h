@@ -9,7 +9,7 @@ namespace fsl {
 
 	// Factor out code independent of Excel.
 	// F = f exp(sZ - s^2/2) <= k if and only if Z <= (log(k/f) + s^2/2)/s
-	double black_moneyness(double f, double s, double k)
+	inline double black_moneyness(double f, double s, double k)
 	{
 		if (f <= 0 || s <= 0 || k <= 0) {
 			return std::numeric_limits<double>::quiet_NaN(); // Use NaN for errors
@@ -17,7 +17,7 @@ namespace fsl {
 
 		return (std::log(k / f) + s * s / 2) / s;
 	}
-	int test_black_moneyness()
+	inline int test_black_moneyness()
 	{
 		{
 			// Test NaN return code.
@@ -49,13 +49,13 @@ namespace fsl {
 	}
 
 	// E[max(k - F, 0)] = k P(Z <= z) - f P(Z + s <= z)
-	double black_put_value(double f, double s, double k)
+	inline double black_put_value(double f, double s, double k)
 	{
 		double z = fsl::black_moneyness(f, s, k);
 
 		return k * fsl::normal_cdf(z) - f * fsl::normal_cdf(z - s);
 	}
-	int test_black_put_value()
+	inline int test_black_put_value()
 	{
 		{
 			double data[][4] = {
@@ -74,14 +74,14 @@ namespace fsl {
 
 	// (d/df) E[max(k - F, 0)] = E[-1(F <= k) dF/df]
 	// dF/df = exp(s Z - s^2/2).
-	double black_put_delta(double f, double s, double k)
+	inline double black_put_delta(double f, double s, double k)
 	{
 		double z = fsl::black_moneyness(f, s, k);
 
 		return -fsl::normal_cdf(z - s);
 	}
 
-	int test_black_put_delta()
+	inline int test_black_put_delta()
 	{
 		{
 			double data[][4] = {
@@ -107,13 +107,13 @@ namespace fsl {
 
 	// (d/df)^2 E[max(k - F, 0)] = normal_pdf(z - s)/(fs)
 	// dF/df = exp(s Z - s^2/2).
-	double black_put_gamma(double f, double s, double k)
+	inline double black_put_gamma(double f, double s, double k)
 	{
 		double z = fsl::black_moneyness(f, s, k);
 
 		return fsl::normal_pdf(z - s)/(f*s);
 	}
-	int test_black_put_gamma()
+	inline int test_black_put_gamma()
 	{
 		{
 			double data[][4] = {
@@ -139,13 +139,13 @@ namespace fsl {
 	}
 
 	// (d/ds) E[max(k - F, 0)] = f normal_pdf(z - s)
-	double black_put_vega(double f, double s, double k)
+	inline double black_put_vega(double f, double s, double k)
 	{
 		double z = fsl::black_moneyness(f, s, k);
 
 		return f * fsl::normal_pdf(z - s);
 	}
-	int test_black_put_vega()
+	inline int test_black_put_vega()
 	{
 		{
 			double data[][4] = {
@@ -167,7 +167,7 @@ namespace fsl {
 	}
 
 	// Black implied volatility for put option.
-	double black_put_implied(double f, double p, double k, double s = 0.1, double eps = 1e-8, unsigned iter = 100)
+	inline double black_put_implied(double f, double p, double k, double s = 0.1, double eps = 1e-8, unsigned iter = 100)
 	{
 		do {
 			// Newton-Raphson method.
@@ -184,7 +184,7 @@ namespace fsl {
 
 		return s;
 	}
-	int test_black_put_implied()
+	inline int test_black_put_implied()
 	{
 		{
 			double data[][3] = {
