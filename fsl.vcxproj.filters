@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Prompts">
+      <UniqueIdentifier>{783c3b6f-c8ab-43b5-bd2b-9874d594f98c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="xll_fsl.h">
@@ -30,6 +33,12 @@
     <ClInclude Include="fsl_bsm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fsl_pwflat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsl_bootstrap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xll_black.cpp">
@@ -41,5 +50,13 @@
     <ClCompile Include="xll_bsm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xll_pwflat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="prompts\pwflat.1">
+      <Filter>Prompts</Filter>
+    </None>
   </ItemGroup>
 </Project>

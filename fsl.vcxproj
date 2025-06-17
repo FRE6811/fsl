@@ -129,8 +129,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="fsl_bootstrap.h" />
     <ClInclude Include="fsl_bsm.h" />
     <ClInclude Include="fsl_monte.h" />
+    <ClInclude Include="fsl_pwflat.h" />
     <ClInclude Include="xll_fsl.h" />
     <ClInclude Include="fsl_black.h" />
     <ClInclude Include="fsl_normal.h" />
@@ -139,11 +141,15 @@
     <ClCompile Include="xll_array.cpp" />
     <ClCompile Include="xll_black.cpp" />
     <ClCompile Include="xll_bsm.cpp" />
+    <ClCompile Include="xll_pwflat.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="xll24\xll.vcxproj">
       <Project>{7d7375af-e7e3-42d3-a00f-d8ee22c39924}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="prompts\pwflat.1" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
