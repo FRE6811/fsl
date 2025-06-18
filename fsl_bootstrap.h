@@ -10,6 +10,45 @@ namespace fsl {
 	template<class U = double, class C = double>
 	using instrument = std::vector<cash_flow<U, C>>;
 
+	template<class U = double, class C = double>
+	struct zero_coupon_bond : public instrument<U, C>
+	{
+		// Construct from a single cash flow.
+		zero_coupon_bond(U u, C c = 1)
+			: instrument<U, C>({ { u, c } })
+		{ }
+		// Default constructor.
+		zero_coupon_bond() = default;
+		using instrument<U, C>::operator=; // Inherit assignment operator.
+	};
+
+	template<class U = double, class C = double>
+	struct forward_rate_agreement : public instrument<U, C>
+	{
+		// Construct from maturity and simple interest rate.
+		forward_rate_agreement(double u, double r)
+			: instrument<double, double>({ {U(0), C(-1)}, { u, 1 + r*u } })
+		{
+		}
+		// Default constructor.
+		forward_rate_agreement() = default;
+		using instrument<double, double>::operator=; // Inherit assignment operator.
+	};
+
+	template<class U = double, class C = double>
+	struct forward_rate_agreement : public instrument<U, C>
+	{
+		// Construct from maturity and simple interest rate.
+		forward_rate_agreement(double u, double v, double f)
+			: instrument<double, double>({ {u, C(-1)}, { vu, 1 + v * (v - u) } })
+		{
+		}
+		// Default constructor.
+		forward_rate_agreement() = default;
+		using instrument<double, double>::operator=; // Inherit assignment operator.
+	};
+
+
 	template<class U = double, class C = double, class T = double, class F = double>
 	constexpr C present_value(const instrument<U, C>& uc, const pwflat::curve<T, F>& D)
 	{
