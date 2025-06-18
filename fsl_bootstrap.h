@@ -37,7 +37,7 @@ namespace fsl {
 
 	// Bootstrap a piecewise flat forward curve from an instrument and price.
 	template<class U = double, class C = double, class T = double, class F = double>
-	std::pair<T, F> bootstrap1(const instrument<U, C>& uc, pwflat::curve<T, F>& f, F p = 0, F eps = 1e-8, size_t iter = 100)
+	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, pwflat::curve<T, F>& f, C eps = 1e-8, size_t iter = 100)
 	{
 		if (uc.empty()) {
 			throw std::runtime_error("Instrument cash flow is empty");
@@ -50,12 +50,28 @@ namespace fsl {
 		}
 
 		f.extrapolate(f_);
-		while (iter-- && std::fabs(present_value(uc, f) - p) > eps) {
-			f_ = f_ - (present_value(uc, f) - p) / duration(uc, f);
+		while (iter-- && std::fabs(present_value(uc, f)) > eps) {
+			f_ = f_ - present_value(uc, f) / duration(uc, f);
 			f.extrapolate(f_);
 		}
 		
-		return { t_, f_ };
+		return { u_, f_ };
 	}
+	// TODO: !!!Add comments containing formulas
+	// TODO: bootstrap1 cash deposit (one cash flow)
+
+	// TODO: bootstrap2 forward rate agreement (two cash flows, price 0)
+
+	// TODO: implement generic bootstrap function
+	template<class U = double, class C = double, class T = double, class F = double>
+	inline pwflat::curve<> bootstrap(const std::vector<instrument<>>& uc,
+		C eps = 1e-8, size_t iter = 100)
+	{
+		pwflat::curve<T, F> f;
+		// call bootstrap0 for each instrument
+		return f;
+	}
+
+	// TODO: implement add-in and using in hw5.xlsx
 
 } // namespace fsl

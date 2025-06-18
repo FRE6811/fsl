@@ -145,6 +145,10 @@ namespace fsl::pwflat {
 
 			return *this;
 		}
+		curve& push_back(std::pair<T, F> tf)
+		{
+			return push_back(tf.first, tf.second);
+		}
 
 		F forward(T u) const
 		{
