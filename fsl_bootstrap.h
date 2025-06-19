@@ -1,53 +1,9 @@
 // fsl_bootstrap.h - Bootstrap a piecewise flat forward curve.
 #pragma once
+#include "fsl_instrument.h"
 #include "fsl_pwflat.h"
 
 namespace fsl {
-
-	template<class U = double, class C = double>
-	using cash_flow = std::pair<U, C>;
-
-	template<class U = double, class C = double>
-	using instrument = std::vector<cash_flow<U, C>>;
-
-	template<class U = double, class C = double>
-	struct zero_coupon_bond : public instrument<U, C>
-	{
-		// Construct from a single cash flow.
-		zero_coupon_bond(U u, C c = 1)
-			: instrument<U, C>({ { u, c } })
-		{ }
-		// Default constructor.
-		zero_coupon_bond() = default;
-		using instrument<U, C>::operator=; // Inherit assignment operator.
-	};
-
-	template<class U = double, class C = double>
-	struct forward_rate_agreement : public instrument<U, C>
-	{
-		// Construct from maturity and simple interest rate.
-		forward_rate_agreement(double u, double r)
-			: instrument<double, double>({ {U(0), C(-1)}, { u, 1 + r*u } })
-		{
-		}
-		// Default constructor.
-		forward_rate_agreement() = default;
-		using instrument<double, double>::operator=; // Inherit assignment operator.
-	};
-
-	template<class U = double, class C = double>
-	struct forward_rate_agreement : public instrument<U, C>
-	{
-		// Construct from maturity and simple interest rate.
-		forward_rate_agreement(double u, double v, double f)
-			: instrument<double, double>({ {u, C(-1)}, { vu, 1 + v * (v - u) } })
-		{
-		}
-		// Default constructor.
-		forward_rate_agreement() = default;
-		using instrument<double, double>::operator=; // Inherit assignment operator.
-	};
-
 
 	template<class U = double, class C = double, class T = double, class F = double>
 	constexpr C present_value(const instrument<U, C>& uc, const pwflat::curve<T, F>& D)
@@ -74,12 +30,12 @@ namespace fsl {
 		return dur;
 	}
 
-	// Bootstrap a piecewise flat forward curve from an instrument and price.
+	// Bootstrap a piecewise flat forward curve from an instrument with price 0.
 	template<class U = double, class C = double, class T = double, class F = double>
 	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, pwflat::curve<T, F>& f, C eps = 1e-8, size_t iter = 100)
 	{
 		if (uc.empty()) {
-			throw std::runtime_error("Instrument cash flow is empty");
+			throw std::runtime_error("Instrument cash flows are empty");
 		}
 		auto [u_, c_] = uc.back(); // Last cash flow.
 		auto [t_, f_] = f.back(); // Last point on curve.
@@ -96,8 +52,21 @@ namespace fsl {
 		
 		return { u_, f_ };
 	}
-	// TODO: !!!Add comments containing formulas
+
 	// TODO: bootstrap1 cash deposit (one cash flow)
+	// f = -log((p - pn)/c D(tn))/(u - tn)
+	template<class T = double, class F = double>
+	std::pair<T, F> bootstrap1(
+		const cash_deposit<T, F>& cd, pwflat::curve<T, F>& f,
+		double eps = 1e-8, size_t iter = 100)
+	{
+		// Will have cd[0] = {0, -1}.
+		auto [u_, c_] = cd[1]; // Cash flow at maturity.
+		auto [t_, f_] = f.back(); // Last point on curve.
+		auto pv = present_value(cd, f);
+
+		return { u_, f.extrapolate() };
+	}
 
 	// TODO: bootstrap2 forward rate agreement (two cash flows, price 0)
 
