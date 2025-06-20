@@ -32,7 +32,7 @@ namespace fsl {
 
 	// Bootstrap a piecewise flat forward curve from an instrument with price 0.
 	template<class U = double, class C = double, class T = double, class F = double>
-	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, pwflat::curve<T, F>& f, C eps = 1e-8, size_t iter = 100)
+	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, const pwflat::curve<T, F>& f, C eps = 1e-8, size_t iter = 100)
 	{
 		if (uc.empty()) {
 			throw std::runtime_error("Instrument cash flows are empty");
@@ -56,24 +56,39 @@ namespace fsl {
 	// TODO: bootstrap1 cash deposit (one cash flow)
 	// f = -log((p - pn)/c D(tn))/(u - tn)
 	template<class T = double, class F = double>
-	std::pair<T, F> bootstrap1(
-		const cash_deposit<T, F>& cd, pwflat::curve<T, F>& f,
-		double eps = 1e-8, size_t iter = 100)
+	std::pair<T, F> bootstrap1(const cash_deposit<T, F>& cd, const pwflat::curve<T, F>& f)
 	{
 		// Will have cd[0] = {0, -1}.
 		auto [u_, c_] = cd[1]; // Cash flow at maturity.
 		auto [t_, f_] = f.back(); // Last point on curve.
-		auto pv = present_value(cd, f);
+		auto p_ = present_value(cd, f);
+		f_ = -std::log((1 - p_) / (c_ * f.discount(t_)) / (u_ - t_));
 
-		return { u_, f.extrapolate() };
+		return { u_, f_ };
 	}
 
 	// TODO: bootstrap2 forward rate agreement (two cash flows, price 0)
 
+
+	template<class U = double, class C = double, class T = double, class F = double>
+	struct add {
+		const pwflat::curve<T, F>& f; // Forward curve
+		add(const pwflat::curve<T, F>& f)
+			: f(f) {
+		}
+		std::pair<T, F> operator()(const instrument<U, C>& uc) const
+		{
+			return bootstrap0(uc, f);
+		}
+		std::pair<T, F> operator()(const cash_deposit<U, C>& uc) const
+		{
+			return bootstrap1(uc, f);
+		}
+	};
+
 	// TODO: implement generic bootstrap function
 	template<class U = double, class C = double, class T = double, class F = double>
-	inline pwflat::curve<> bootstrap(const std::vector<instrument<>>& uc,
-		C eps = 1e-8, size_t iter = 100)
+	inline pwflat::curve<T,F> bootstrap(const std::vector<const instrument<U,C>*>& uc)
 	{
 		pwflat::curve<T, F> f;
 		// call bootstrap0 for each instrument

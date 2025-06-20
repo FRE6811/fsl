@@ -92,7 +92,7 @@ namespace fsl::pwflat {
 	class curve {
 		std::vector<T> t_; // time points
 		std::vector<T> f_; // forward rates
-		F _f; // extrapolated value
+		mutable F _f; // extrapolated value
 	public:
 		// Construct a curve from time and forward rate arrays
 		curve(size_t n, const T* t, const F* f, F _f = NaN<F>)
