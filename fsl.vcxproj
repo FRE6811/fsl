@@ -134,6 +134,7 @@
     <ClInclude Include="fsl_instrument.h" />
     <ClInclude Include="fsl_monte.h" />
     <ClInclude Include="fsl_pwflat.h" />
+    <ClInclude Include="fsl_root1d.h" />
     <ClInclude Include="xll_fsl.h" />
     <ClInclude Include="fsl_black.h" />
     <ClInclude Include="fsl_normal.h" />

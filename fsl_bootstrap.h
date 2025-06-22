@@ -2,11 +2,12 @@
 #pragma once
 #include "fsl_instrument.h"
 #include "fsl_pwflat.h"
+#include "fsl_root1d.h"
 
 namespace fsl {
 
 	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr C present_value(const instrument<U, C>& uc, const pwflat::curve<T, F>& D)
+	constexpr C present_value(const instrument<U, C>& uc, const pwflat::curve_view<T, F>& D)
 	{
 		C pv = 0;
 
@@ -19,7 +20,7 @@ namespace fsl {
 
 	// Derivative of present value with respect to forward rate.
 	template<class U = double, class C = double, class T = double, class F = double>
-	constexpr C duration(const instrument<U, C>& uc, const pwflat::curve<T, F>& f)
+	constexpr C duration(const instrument<U, C>& uc, const pwflat::curve_view<T, F>& f)
 	{
 		C dur = 0;
 
@@ -32,10 +33,10 @@ namespace fsl {
 
 	// Bootstrap a piecewise flat forward curve from an instrument with price 0.
 	template<class U = double, class C = double, class T = double, class F = double>
-	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, const pwflat::curve<T, F>& f, C eps = 1e-8, size_t iter = 100)
+	std::pair<T, F> bootstrap0(const instrument<U, C>& uc, const pwflat::curve_view<T, F>& f, C eps = 1e-8, size_t iter = 100)
 	{
 		if (uc.empty()) {
-			throw std::runtime_error("Instrument cash flows are empty");
+			throw std::runtime_error("Instrument cash flows must be non- empty");
 		}
 		auto [u_, c_] = uc.back(); // Last cash flow.
 		auto [t_, f_] = f.back(); // Last point on curve.
@@ -44,12 +45,11 @@ namespace fsl {
 			throw std::runtime_error("Last cash flow must be past end of curve");
 		}
 
-		f.extrapolate(f_);
-		while (iter-- && std::fabs(present_value(uc, f)) > eps) {
-			f_ = f_ - present_value(uc, f) / duration(uc, f);
-			f.extrapolate(f_);
-		}
-		
+		const auto vp = [&uc, &f](F _f) { return present_value(uc, extrapolate(f, _f)); };
+
+		auto [_f, tol, n] = root1d::secant(f_, f_ + 0.01).solve(vp);
+		f_ = _f;
+
 		return { u_, f_ };
 	}
 
@@ -91,7 +91,16 @@ namespace fsl {
 	inline pwflat::curve<T,F> bootstrap(const std::vector<const instrument<U,C>*>& uc)
 	{
 		pwflat::curve<T, F> f;
-		// call bootstrap0 for each instrument
+ 		// call bootstrap0 for each instrument
+		for (size_t i = 0; i < uc.size(); ++i) {
+			if (uc[i] == nullptr) {
+				throw std::runtime_error("Null instrument pointer in bootstrap");
+			}
+			add<U, C, T, F> inst(f);
+			auto [u, f_] = inst(*uc[i]);
+			f.push_back(u, f_);
+			//f.push_back(add<U, C, T, F>(f)(*uc[i]));
+		}
 		return f;
 	}
 

@@ -91,4 +91,29 @@ HANDLEX WINAPI xll_fsl_instrument_zero_coupon_bond_(double u, double D)
 	return h;
 }
 
+AddIn xai_fsl_instrument_cash_deposit_(
+	Function(XLL_HANDLEX, L"?xll_fsl_instrument_cash_deposit_", L"\\INSTRUMENT.CASH_DEPOSIT")
+	.Arguments({
+		Arg(XLL_DOUBLE, "u", "is the maturity of the cash deposit in years."),
+		Arg(XLL_DOUBLE, "r", "is the continuously compounded rate."),
+		})
+		.Uncalced()
+	.Category(CATEGORY)
+	.FunctionHelp("Return a handle to a cash deposit with maturity u and rate r.")
+);
+HANDLEX WINAPI xll_fsl_instrument_cash_deposit_(double u, double r)
+{
+#pragma XLLEXPORT
+	HANDLEX h = INVALID_HANDLEX;
+	try {
+		handle<instrument<>> zcb(new cash_deposit<>(u, r));
+		ensure(zcb);
+		h = zcb.get();
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+	return h;
+}
+
 // TODO: Implement \\INSTRUMENT.CASH_DEPOSIT/FORWARD_RATE_AGREEMENT/INTEREST_RATE_SWAP
