@@ -20,19 +20,16 @@ Discount is represented using a piecewise flat right-continuous forward curve.
 
 	Note f(t[i]) = f[i].
 */
+#include <cassert>
 #include <cmath>
 #include <limits> 
 #include <stdexcept>
 #include <span>
 #include <utility>
 #include <vector>
+#include "fsl_math.h"
 
 namespace fsl::pwflat {
-
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-	template<class X>
-	constexpr bool is_nan(X x) { return x != x; }
 
 	// Forward at time u. Assumes t entries are increasing.
 	template<class T = double, class F = double> // time, forward rate
@@ -107,7 +104,7 @@ namespace fsl::pwflat {
 	template<class T = double, class F = double>
 	constexpr F discount(T u, size_t n, const T* t, const F* f, F _f = NaN<F>)
 	{
-		return std::exp(-integral(u, n, t, f, _f));
+		return exp(-integral(u, n, t, f, _f));
 	}
 
 	// spot r(u) = (int_0^u f(t) dt)/u
@@ -129,18 +126,18 @@ namespace fsl::pwflat {
 		const F* f_; // forward rates
 		F _f; // extrapolated value
 	public:
+		constexpr curve_view() = default;
+		constexpr curve_view(const curve_view&) = default;
+		constexpr curve_view& operator=(const curve_view&) = default;
+		constexpr ~curve_view() = default;
 		// constant curve
-		constexpr curve_view(F _f = NaN<F>)
+		constexpr curve_view(F _f)
 			: n_(0), t_(nullptr), f_(nullptr), _f(_f) 
 		{ }
 		// Construct a curve_view from time and forward rate arrays
-		constexpr curve_view(size_t n = 0, const T* t = nullptr, const F* f = nullptr, F _f = NaN<F>)
-			: n_(n), t_(t), f_(f), _f(_f) {
-		}
-		curve_view(curve_view&&) = default;
-		curve_view& operator=(const curve_view&) = default;
-		curve_view& operator=(curve_view&&) = default;
-		~curve_view() = default;
+		constexpr curve_view(size_t n, const T* t, const F* f, F _f = NaN<F>)
+			: n_(n), t_(t), f_(f), _f(_f) 
+		{ }
 
 		constexpr size_t size() const
 		{
@@ -170,33 +167,54 @@ namespace fsl::pwflat {
 
 		}
 
-		F forward(T u) const
+		constexpr F forward(T u) const
 		{
 			return pwflat::forward(u, n_, t_, f_, _f);
 		}
-		F operator()(T u) const
+		constexpr F operator()(T u) const
 		{
 			return forward(u);
 		}
-		F integral(T u) const
+		constexpr F integral(T u) const
 		{
 			return pwflat::integral(u, n_, t_, f_, _f);
 		}
-		F discount(T u) const
+		constexpr F discount(T u) const
 		{
 			return pwflat::discount(u, n_, t_, f_, _f);
 		}
-		F spot(T u) const
+		constexpr F spot(T u) const
 		{
 			return pwflat::spot(u, n_, t_, f_, _f);
 		}
 	};
 
+	// Curve view with new extrapolated value.
 	template<class T = double, class F = double>
 	constexpr curve_view<T, F> extrapolate(curve_view<T,F> f, F _f)
 	{
 		return curve_view<T, F>(f.size(), f.time(), f.rate(), _f);
 	}
+#ifdef _DEBUG
+	constexpr void test_curve_view()
+	{
+		constexpr double t[] = { 1, 2, 3 };
+		constexpr double f[] = { .1, .2, .3 };
+		static_assert(curve_view(3, t, f, 0.4).size() == 3);
+		static_assert(curve_view(3, t, f, 0.4).size() == 3);
+		static_assert(curve_view(3, t, f, 0.4).time() == t);
+		static_assert(curve_view(3, t, f, 0.4).rate() == f);
+		static_assert(curve_view(3, t, f, 0.4).extrapolate() == 0.4);
+		static_assert(curve_view(3, t, f, 0.4).forward(0) == .1);
+		static_assert(curve_view(3, t, f, 0.4).forward(1) == .1);
+		static_assert(curve_view(3, t, f, 0.4).spot(1) == .1);
+		static_assert(curve_view(3, t, f, 0.4).forward(1.5) == .2);
+		static_assert(curve_view(3, t, f, 0.4).spot(1.5) != .2);
+		static_assert(curve_view(3, t, f, 0.4).forward(2) == .2);
+		static_assert(curve_view(3, t, f, 0.4).forward(3) == .3);
+		static_assert(is_nan(curve_view(3, t, f).forward(3.1)));
+	}	
+#endif // _DEBUG
 
 	// Value-type curve object
 	template<class T = double, class F = double>

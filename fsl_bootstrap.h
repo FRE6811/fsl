@@ -45,9 +45,9 @@ namespace fsl {
 			throw std::runtime_error("Last cash flow must be past end of curve");
 		}
 
-		const auto vp = [&uc, &f](F _f) { return present_value(uc, extrapolate(f, _f)); };
+		const auto pv = [&uc, &f](F _f) { return present_value(uc, extrapolate(f, _f)); };
 
-		auto [_f, tol, n] = root1d::secant(f_, f_ + 0.01).solve(vp);
+		auto [_f, tol, n] = root1d::secant(f_, f_ + 0.01).solve(pv);
 		f_ = _f;
 
 		return { u_, f_ };
@@ -56,7 +56,7 @@ namespace fsl {
 	// TODO: bootstrap1 cash deposit (one cash flow)
 	// f = -log((p - pn)/c D(tn))/(u - tn)
 	template<class T = double, class F = double>
-	std::pair<T, F> bootstrap1(const cash_deposit<T, F>& cd, const pwflat::curve<T, F>& f)
+	std::pair<T, F> bootstrap1(const cash_deposit<T, F>& cd, const pwflat::curve_view<T, F>& f)
 	{
 		// Will have cd[0] = {0, -1}.
 		auto [u_, c_] = cd[1]; // Cash flow at maturity.
@@ -69,11 +69,10 @@ namespace fsl {
 
 	// TODO: bootstrap2 forward rate agreement (two cash flows, price 0)
 
-
 	template<class U = double, class C = double, class T = double, class F = double>
 	struct add {
-		const pwflat::curve<T, F>& f; // Forward curve
-		add(const pwflat::curve<T, F>& f)
+		const pwflat::curve_view<T, F>& f; // Forward curve
+		add(const pwflat::curve_view<T, F>& f)
 			: f(f) {
 		}
 		std::pair<T, F> operator()(const instrument<U, C>& uc) const

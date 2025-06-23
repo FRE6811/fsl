@@ -132,6 +132,7 @@
     <ClInclude Include="fsl_bootstrap.h" />
     <ClInclude Include="fsl_bsm.h" />
     <ClInclude Include="fsl_instrument.h" />
+    <ClInclude Include="fsl_math.h" />
     <ClInclude Include="fsl_monte.h" />
     <ClInclude Include="fsl_pwflat.h" />
     <ClInclude Include="fsl_root1d.h" />

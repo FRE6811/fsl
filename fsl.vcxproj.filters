@@ -45,6 +45,9 @@
     <ClInclude Include="fsl_root1d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fsl_math.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xll_black.cpp">

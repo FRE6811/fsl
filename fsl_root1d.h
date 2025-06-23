@@ -2,54 +2,10 @@
 #pragma once
 #include <tuple>
 #include <limits>
+#include "fsl_math.h"
 
 namespace fsl::root1d {
 	
-	template<class X>
-	constexpr X NaN = std::numeric_limits<X>::quiet_NaN();
-	template<class X>
-	constexpr X epsilon = std::numeric_limits<X>::epsilon();
-	template<class X>
-	constexpr X infinity = std::numeric_limits<X>::infinity();
-	template<class X>
-	constexpr X sqrt_epsilon = std::ldexp(1., -std::numeric_limits<X>::digits/2);
-
-	// Sign of x.
-	template<class X>
-	constexpr X sgn(X x)
-	{
-		return x > 0 ? X(1) : x < 0 ? X(-1) : X(0);
-	}
-#ifdef _DEBUG
-	static_assert(sgn(-2) == -1);
-	static_assert(sgn(0) == 0);
-	static_assert(sgn(2) == 1);
-#endif // _DEBUG
-
-	template<class X>
-	constexpr bool samesign(X x, X y)
-	{
-		//return x = std::copysign(x, y);
-		return sgn(x) == sgn(y);
-	}
-#ifdef _DEBUG
-	static_assert(samesign(-2, -3));
-	static_assert(samesign(0, 0));
-	static_assert(samesign(2, 3));
-	static_assert(!samesign(-2, 3));
-	static_assert(!samesign(2, -3));
-#endif // _DEBUG
-	
-	template<class X>
-	constexpr X fabs(X x)
-	{
-		return x >= 0 ? x : -x;
-	}
-#ifdef _DEBUG
-	static_assert(fabs(-1) == 1);
-	static_assert(fabs(1) == 1);
-#endif // _DEBUG
-
 	// Move x to bracketed root in [a, b] given last bracketed guess x0.
 	template<class X>
 	constexpr X bracket(X x, X x0, X a = -infinity<X>, X b = infinity<X>)

@@ -26,7 +26,7 @@ HANDLEX WINAPI xll_pwflat_curve(const _FP12* pt, const _FP12* pf, double _f)
 	try {
 		ensure(size(*pt) == size(*pf));
 		if (_f == 0) {
-			_f = NaN<double>;
+			_f = fsl::NaN<double>;
 		}
 		handle<curve<>> h_(new curve(size(*pt), pt->array, pf->array, _f));
 		ensure(h_);
@@ -53,7 +53,7 @@ AddIn xai_pwflat_forward(
 double WINAPI xll_pwflat_forward(HANDLEX h, double u)
 {
 #pragma XLLEXPORT
-	double result = NaN<double>;
+	double result = fsl::NaN<double>;
 
 	try {
 		handle<curve<double, double>> h_(h);
