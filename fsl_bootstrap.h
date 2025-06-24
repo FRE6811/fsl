@@ -46,63 +46,26 @@ namespace fsl {
 		}
 
 		const auto pv = [&uc, &f](F _f) { return present_value(uc, extrapolate(f, _f)); };
-
-		auto [_f, tol, n] = root1d::secant(f_, f_ + 0.01).solve(pv);
-		f_ = _f;
+		f_ = std::get<0>(root1d::secant(f_, f_ + 0.01).solve(pv));
 
 		return { u_, f_ };
 	}
 
-	// TODO: bootstrap1 cash deposit (one cash flow)
-	// f = -log((p - pn)/c D(tn))/(u - tn)
-	template<class T = double, class F = double>
-	std::pair<T, F> bootstrap1(const cash_deposit<T, F>& cd, const pwflat::curve_view<T, F>& f)
-	{
-		// Will have cd[0] = {0, -1}.
-		auto [u_, c_] = cd[1]; // Cash flow at maturity.
-		auto [t_, f_] = f.back(); // Last point on curve.
-		auto p_ = present_value(cd, f);
-		f_ = -std::log((1 - p_) / (c_ * f.discount(t_)) / (u_ - t_));
-
-		return { u_, f_ };
-	}
-
-	// TODO: bootstrap2 forward rate agreement (two cash flows, price 0)
-
-	template<class U = double, class C = double, class T = double, class F = double>
-	struct add {
-		const pwflat::curve_view<T, F>& f; // Forward curve
-		add(const pwflat::curve_view<T, F>& f)
-			: f(f) {
-		}
-		std::pair<T, F> operator()(const instrument<U, C>& uc) const
-		{
-			return bootstrap0(uc, f);
-		}
-		std::pair<T, F> operator()(const cash_deposit<U, C>& uc) const
-		{
-			return bootstrap1(uc, f);
-		}
-	};
-
-	// TODO: implement generic bootstrap function
 	template<class U = double, class C = double, class T = double, class F = double>
 	inline pwflat::curve<T,F> bootstrap(const std::vector<const instrument<U,C>*>& uc)
 	{
 		pwflat::curve<T, F> f;
+
  		// call bootstrap0 for each instrument
 		for (size_t i = 0; i < uc.size(); ++i) {
 			if (uc[i] == nullptr) {
 				throw std::runtime_error("Null instrument pointer in bootstrap");
 			}
-			add<U, C, T, F> inst(f);
-			auto [u, f_] = inst(*uc[i]);
+			auto [u, f_] = bootstrap0(*uc[i], f);
 			f.push_back(u, f_);
-			//f.push_back(add<U, C, T, F>(f)(*uc[i]));
 		}
+
 		return f;
 	}
-
-	// TODO: implement add-in and using in hw5.xlsx
 
 } // namespace fsl

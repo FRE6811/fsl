@@ -5,6 +5,7 @@
 #include <utility>	
 #include <variant>
 #include <vector>
+#include "fsl_math.h"
 
 namespace fsl {
 	template<class U = double, class C = double>
@@ -18,10 +19,9 @@ namespace fsl {
 	struct zero_coupon_bond : public instrument<U, C>
 	{
 		// Single cash flow.
-		zero_coupon_bond(U u, C D)
+		constexpr zero_coupon_bond(U u, C D)
 			: instrument<U, C>({ {U(0), -D}, { u, C(1)}})
-		{
-		}
+		{ }
 		// Default constructor.
 		zero_coupon_bond() = default;
 		using instrument<U, C>::operator=; // Inherit assignment operator.
@@ -32,8 +32,8 @@ namespace fsl {
 	struct cash_deposit : public instrument<U, C>
 	{
 		// Construct from maturity and simple interest rate.
-		cash_deposit(U u, C r)
-			: instrument<U, C>({ {U(0), C(-1)}, { u, std::exp(r * u) } })
+		constexpr cash_deposit(U u, C r)
+			: instrument<U, C>({ {U(0), C(-1)}, { u, exp(r * u) } })
 		{
 		}
 		// Default constructor.
@@ -44,8 +44,8 @@ namespace fsl {
 	template<class U = double, class C = double>
 	struct forward_rate_agreement : public instrument<U, C>
 	{
-		forward_rate_agreement(U u, U v, C f)
-			: instrument<U, C>({ {u, C(-1)}, { v, std::exp(f * (v - u)) } })
+		constexpr forward_rate_agreement(U u, U v, C f)
+			: instrument<U, C>({ {u, C(-1)}, { v, exp(f * (v - u)) } })
 		{
 		}
 		// Default constructor.
@@ -65,8 +65,8 @@ namespace fsl {
 	struct interest_rate_swap : public instrument<U, C>
 	{
 		// Construct from maturity, par coupon and payments per year.
-		interest_rate_swap(U u, C c, frequency n = frequency::annually)
-			: instrument<U, C>(size_t(n * u) + 1)
+		constexpr interest_rate_swap(U u, C c, frequency n = frequency::annually)
+			: instrument<U, C>(size_t((int)n * u) + 1)
 		{
 			this->at(0) = { U(0), C(-1) }; // Initial cash flow of -1 at time 0.
 			U du = 1/static_cast<U>(n); // Period length.

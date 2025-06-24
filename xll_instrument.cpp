@@ -5,6 +5,12 @@
 using namespace fsl;
 using namespace xll;
 
+// Enumeration constants.
+XLL_CONST(INT, FREQUENCY_ANNUALLY, (int)frequency::annually, "One payment per year.", CATEGORY, "");
+XLL_CONST(INT, FREQUENCY_SENIANNUALLY, (int)frequency::semiannually, "Two payments per year.", CATEGORY, "");
+XLL_CONST(INT, FREQUENCY_QUARTERLY, (int)frequency::quarterly, "Four payment per year.", CATEGORY, "");
+XLL_CONST(INT, FREQUENCY_MONTLY, (int)frequency::monthly, "Twelve payment per year.", CATEGORY, "");
+
 AddIn xai_fsl_instrument_(
 	Function(XLL_HANDLEX, L"?xll_fsl_instrument_", L"\\INSTRUMENT")
 	.Arguments({
@@ -116,4 +122,6 @@ HANDLEX WINAPI xll_fsl_instrument_cash_deposit_(double u, double r)
 	return h;
 }
 
-// TODO: Implement \\INSTRUMENT.CASH_DEPOSIT/FORWARD_RATE_AGREEMENT/INTEREST_RATE_SWAP
+// TODO: Implement \\INSTRUMENT.FORWARD_RATE_AGREEMENT and INTEREST_RATE_SWAP
+
+// TODO: Add instruments to hw5.xlsx and insert a plot of the curve from 0 to 10 years at steps of 0.1 years.

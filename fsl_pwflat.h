@@ -232,13 +232,11 @@ namespace fsl::pwflat {
 			: curve_view<T,F>(_f), t(t, t + n), f(f, f + n)
 		{
 			curve_view<T, F>::n_ = n;
-			curve_view<T, F>::t_ = t;
-			curve_view<T, F>::f_ = f;
+			curve_view<T, F>::t_ = this->t.data();
+			curve_view<T, F>::f_ = this->f.data();
 		}
-		curve(curve&&) = default;
-		curve& operator=(const curve&) = default;
-		curve& operator=(curve&&) = default;
-		~curve() = default;
+		constexpr curve& operator=(const curve&) = default;
+		constexpr ~curve() = default;
 
 		// Equal values.
 		constexpr bool operator==(const curve& c) const
@@ -247,8 +245,12 @@ namespace fsl::pwflat {
 			F e = extrapolate();
 			F ce = c.extrapolate();
 
-			return t == c.t && f == c.f && ((is_nan(e) && is_nan(ce)) || e == ce);
+			return ((is_nan(e) && is_nan(ce)) || e == ce) && t == c.t && f == c.f;
 		} 
+		constexpr bool operator!=(const curve& c) const
+		{
+			return !operator==(c);
+		}
 		
 		// Extend curve by (t, f).
 		constexpr curve& push_back(T t, F f)
@@ -258,6 +260,9 @@ namespace fsl::pwflat {
 			}
 			this->t.push_back(t);
 			this->f.push_back(f);
+			++curve_view<T, F>::n_;
+			curve_view<T, F>::t_ = this->t.data();
+			curve_view<T, F>::f_ = this->f.data();
 
 			return *this;
 		}
@@ -269,9 +274,9 @@ namespace fsl::pwflat {
 #ifdef _DEBUG
 	constexpr void test_curve()
 	{
-		//constexpr double t[] = { 1, 2, 3 };
-		//constexpr double f[] = { .1, .2, .3 };
-		//constexpr fsl::pwflat::curve<double,double> c(3, t, f, 0.4);
+		constexpr double t[] = { 1, 2, 3 };
+		constexpr double f[] = { .1, .2, .3 };
+		static_assert(curve<double,double>(3, t, f, 0.4).size() == 3);
 		//static_assert(c.size() == 3);
 	}
 #endif // _DEBUG

@@ -6,7 +6,7 @@ using namespace xll;
 using namespace fsl;
 
 AddIn xai_fsl_bootstrap0_(
-	Function(XLL_FP, L"?xll_fsl_bootstrap_", L"\\BOOTSTRAP")
+	Function(XLL_HANDLEX, L"?xll_fsl_bootstrap_", L"\\BOOTSTRAP")
 	.Arguments({
 		Arg(XLL_FP, "instruments", "is an array of intsrument handles."),
 		})
@@ -28,10 +28,15 @@ HANDLEX WINAPI xll_fsl_bootstrap_(const _FP12* ph)
 			is[i] = i_.ptr();
 		}
 		handle<pwflat::curve<>> h_(new pwflat::curve<>(fsl::bootstrap<>(is)));
+		ensure(h_);
+		h = h_.get();
 	}
 	catch (const std::exception& ex) {
 		XLL_ERROR(ex.what());
 	}	
+	catch (...) {
+		XLL_ERROR("Unknown error in " __FUNCTION__);
+	}
 
 	return h;
 }
