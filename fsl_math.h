@@ -80,6 +80,7 @@ namespace fsl {
 	static_assert(fabs(1) == 1);
 #endif // _DEBUG
 
+	// exp(x) = sum_0^inf (x^n / n!)	
 	template<class X>
 	constexpr X exp(X x, X epsilon = sqrt_epsilon<X>) {
 		X ex = 1.0;

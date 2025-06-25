@@ -71,7 +71,7 @@ _FP12* WINAPI xll_pwflat_curve(HANDLEX h)
 }
 
 AddIn xai_pwflat_extrapolate(
-	Function(XLL_HANDLEX, L"?xll_pwflat_extrapolate", L"PWFLAT.EXTRAPOLATE")
+	Function(XLL_DOUBLE, L"?xll_pwflat_extrapolate", L"PWFLAT.EXTRAPOLATE")
 	.Arguments({
 		Arg(XLL_HANDLEX, L"h", L"is a handle to a piecewise flat forward curve."),
 		})
@@ -80,6 +80,23 @@ AddIn xai_pwflat_extrapolate(
 		L"Return extrapolated value _f."
 	)
 );
+double WINAPI xll_pwflat_extrapolate(HANDLEX h)
+{
+#pragma XLLEXPORT
+	double result = fsl::NaN<double>;
+
+	try {
+		handle<curve<double, double>> h_(h);
+		if (h_) {
+			result = h_->extrapolate();
+		}
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+
+	return result;
+}
 
 AddIn xai_pwflat_forward(
 	Function(XLL_DOUBLE, L"?xll_pwflat_forward", L"PWFLAT.FORWARD")

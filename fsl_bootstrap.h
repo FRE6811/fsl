@@ -46,7 +46,7 @@ namespace fsl {
 		}
 
 		const auto pv = [&uc, &f](F _f) { return present_value(uc, extrapolate(f, _f)); };
-		f_ = std::get<0>(root1d::secant(f_, f_ + 0.01).solve(pv));
+		f_ = std::get<0>(root1d::secant(f_, f_ + 0.01, eps, iter).solve(pv));
 
 		return { u_, f_ };
 	}
@@ -61,8 +61,7 @@ namespace fsl {
 			if (uc[i] == nullptr) {
 				throw std::runtime_error("Null instrument pointer in bootstrap");
 			}
-			auto [u, f_] = bootstrap0(*uc[i], f);
-			f.push_back(u, f_);
+			f.push_back(bootstrap0(*uc[i], f));
 		}
 
 		return f;
