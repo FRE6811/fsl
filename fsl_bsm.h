@@ -43,7 +43,7 @@ namespace fsl {
 	{
 		auto [D, f, s] = black_bsm(r, s0, sigma, t);
 		
-		return D * fsl::black_put_value(f, s, k);
+		return D * black_put_value(f, s, k);
 	}
 	inline int test_bsm_put_value()
 	{
@@ -60,19 +60,44 @@ namespace fsl {
 		return 0;
 	}
 
-	// TODO: bsm_put_delta and test using black_put_delta
 	// (d/ds0) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/df) E[max{k - F, 0}] dF/ds0
 	// dF/ds0 = exp(r t)
 	// (d/ds0) exp(-r t) E[max{k - S_t, 0}] = (d/df) E[max{k - F, 0}]
+	inline double bsm_put_delta(double r, double s0, double sigma, double t, double k)
+	{
+		auto [D, f, s] = black_bsm(r, s0, sigma, t);
 
-	// TODO: bsm_put_gamma and test using black_put_gamma
+		// BSM delta = Black delta
+		return black_put_delta(f, s, k);
+	}
+
 	// (d/ds0) bsm_put_delta(r, s0, sigma, t, k) = (d/df) bsm_put_delta(f, s, k) dF/ds0
+	inline double bsm_put_gamma(double r, double s0, double sigma, double t, double k)
+	{
+		auto [D, f, s] = black_bsm(r, s0, sigma, t);
+		return fsl::black_put_gamma(f, s, k) / D;
+	}
 
-	// TODO: bsm_put_vega and test using black_put_vega
 	// (d/dsigma) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/ds) E[max{k - F, 0}] ds/dsigma
 	// ds/dsigma = sqrt(t)
 	// (d/dsigma) exp(-r t) E[max{k - S_t, 0}] = exp(-r t) (d/ds) E[max{k - F, 0}] sqrt(t) 
+	inline double bsm_put_vega(double r, double s0, double sigma, double t, double k)
+	{
+		auto [D, f, s] = black_bsm(r, s0, sigma, t);
 
-	// TODO: bsm_put_implied and test using black_put_implied.
+		// BSM vega = D * Black vega * sqrt(t)
+		return D * black_put_vega(f, s, k) * std::sqrt(t);
+	}
+
+	inline double bsm_put_implied(double r, double s0, double p, double t, double k,
+		double sigma = 0.2, double eps = 1e-8, unsigned iter = 100)
+	{
+		auto [D, f, s] = black_bsm(r, s0, sigma, t);
+		double p_D = p / D; // Forward put value
+
+		// Use Black implied volatility, then convert back
+		double implied = fsl::black_put_implied(f, p_D, k, s, eps, iter);
+		return implied / sqrt(t);
+	}
 
 } // namespace fsl
