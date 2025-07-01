@@ -48,6 +48,9 @@
     <ClInclude Include="fsl_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="fsl_vswap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="xll_black.cpp">
@@ -69,6 +72,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xll_brownian.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xll_vswap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

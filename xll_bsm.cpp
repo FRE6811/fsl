@@ -115,5 +115,3 @@ double WINAPI xll_bsm_put_implied(double r, double s0, double p, double t, doubl
 
     return result;
 }
-
-// TODO: Implement add-ins BSM.PUT.DELTA/GAMMA/VEGA/IMPLIED.
