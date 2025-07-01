@@ -7,7 +7,7 @@
 // f(X_n) - f(X_0) = sum_0 <= j < n f(X_{j+1}) - f(X_j)
 //                 = sum_0 <= j < n f'(X_j) ΔX_j + f''(X_j) ΔX_j^2/2 + O(ΔX_j^3)
 // Let f''(x) = 2/x^2 so f'(x) = -2/x + c and f(x) = -2 log(x) +  cx
-// sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + (X_n - X_0)/z + sum_0 <= j < n -2ΔX_j/X_j if c = 1/z.
+// sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + 2 (X_n - X_0)/z + sum_0 <= j < n -2ΔX_j/X_j if c = 2/z.
 //                              <static hedge is European option>  <dynamic hedge in futures>
 // Carr-Madan: 
 // f(x) = f(a) + f'(a) (x - a) + int_0^a f''(k) p(k) dk + int_a^infty f''(k) c(k) dk
@@ -88,7 +88,7 @@ namespace fsl {
 	template<class X = double>
 	inline X static_payoff(X x0, X z, X x)
 	{
-		return -2 * std::log(x / x0) + (x - x0) / z;
+		return -2 * std::log(x / x0) + 2 * (x - x0) / z;
 	}
 	// {f''(k[1]), f''(k[2]), ..., f''(k[n-2])}
 	template<class X = double>
