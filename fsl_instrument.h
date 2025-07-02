@@ -1,4 +1,4 @@
-// fsl_instrument.h - Fixed income instruments
+// fsl_instrument.h - Fixed income instruments cash flows (u_j, c_j)
 #pragma once
 #include <cmath>
 #include <stdexcept>
