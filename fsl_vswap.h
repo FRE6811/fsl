@@ -7,7 +7,7 @@
 // f(X_n) - f(X_0) = sum_0 <= j < n f(X_{j+1}) - f(X_j)
 //                 = sum_0 <= j < n f'(X_j) ΔX_j + f''(X_j) ΔX_j^2/2 + O(ΔX_j^3)
 // Let f''(x) = 2/x^2 so f'(x) = -2/x + c and f(x) = -2 log(x) +  cx
-// sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + 2 (X_n - X_0)/z + sum_0 <= j < n -2ΔX_j/X_j if c = 2/z.
+// sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + 2 (X_n - X_0)/z + sum_0 <= j < n (-2/X_j) ΔX_j if c = 2/z.
 //                              <static hedge is European option>  <dynamic hedge in futures>
 // Carr-Madan: 
 // f(x) = f(a) + f'(a) (x - a) + int_0^a f''(k) p(k) dk + int_a^infty f''(k) c(k) dk
@@ -92,31 +92,33 @@ namespace fsl {
 	}
 	// {f''(k[1]), f''(k[2]), ..., f''(k[n-2])}
 	template<class X = double>
-	inline X* vswap_weights(X x0, X z, size_t n, const X* k, X* f)
+	inline X* vswap_weights(X x0, X z, size_t n, const X* k, X* w)
 	{
-		if (n < 2 || k == nullptr || f == nullptr) {
+		if (n < 2 || k == nullptr || w == nullptr) {
 			return nullptr;
 		}
 
 		for (size_t i = 0; i < n; ++i) {
-			f[i] = static_payoff(x0, z, k[i]);
+			w[i] = static_payoff(x0, z, k[i]);
 		}
-		if (!difference_quotient(n, k, f)) {
+		if (!difference_quotient(n, k, w)) {
 			return nullptr;
 		}
 
 		// Last difference quotient does not exist so n - 1 size.
-		std::adjacent_difference(f.data(), f.data() + n - 1, f.data());
+		std::adjacent_difference(w, w + n - 1, w);
 
 		// f''(k) = 1/k^2 so should be decreasing and positive
-		if (!std::is_sorted(f.data(), f.data() + n - 2, std::greater<X>())) {
+		/*
+		if (!std::is_sorted(w, w + n - 2, std::greater<X>())) {
 			return nullptr;
 		}
-		if (!std::all_of(f.data(), f.data() + n - 2, [](X x) { return x > 0; })) {
+		if (!std::all_of(w, w + n - 2, [](X x) { return x > 0; })) {
 			return nullptr;
 		}
+		*/
 
-		return f;
+		return w;
 	}
 
 	// Par variance is σ_0^2 = E[σ^2]
@@ -132,9 +134,9 @@ namespace fsl {
 		if (!is_decreasing(p, p + n)) return NaN<X>;
 		if (!is_increasing(c, c + n)) return NaN<X>;
 
-		std::vector<X> f(n);
+		std::vector<X> w(n);
 		// +1 to like up with strikes
-		if (!vswap_weights(x0, z, n, k, f.data() + 1)) {
+		if (!vswap_weights(x0, z, n, k, w.data() + 1)) {
 			return NaN<X>;
 		}
 	
@@ -142,14 +144,14 @@ namespace fsl {
 		size_t i = 1;
 		// puts
 		while (i < n - 1 && k[i] < z) {
-			s2 += f[i] * p[i];
+			s2 += w[i] * p[i];
 			++i;
 		}
-		X m = (f[i] - f[i - 1]) / (k[i] - k[i - 1]); // slope at z	
+		X m = (w[i] - w[i - 1]) / (k[i] - k[i - 1]); // slope at z	
 		s2 += m;
 		// calls
 		while (i < n - 1) {
-			s2 += f[i] * c[i];
+			s2 += w[i] * c[i];
 			++i;
 		}
 
