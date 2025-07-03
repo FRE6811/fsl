@@ -109,14 +109,13 @@ namespace fsl {
 		std::adjacent_difference(w, w + n - 1, w);
 
 		// f''(k) = 1/k^2 so should be decreasing and positive
-		/*
-		if (!std::is_sorted(w, w + n - 2, std::greater<X>())) {
+		
+		if (!std::is_sorted(&w[1], &w[n - 1], std::greater<X>())) {
 			return nullptr;
 		}
-		if (!std::all_of(w, w + n - 2, [](X x) { return x > 0; })) {
+		if (!std::all_of(&w[1], &w[n - 1], [](X x) { return x > 0; })) {
 			return nullptr;
 		}
-		*/
 
 		return w;
 	}
