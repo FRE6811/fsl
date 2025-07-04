@@ -10,7 +10,7 @@
 // sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + 2 (X_n - X_0)/z + sum_0 <= j < n (-2/X_j) ΔX_j if c = 2/z.
 //                              <static hedge is European option>  <dynamic hedge in futures>
 // Carr-Madan: 
-// f(x) = f(a) + f'(a) (x - a) + int_0^a f''(k) p(k) dk + int_a^infty f''(k) c(k) dk
+// f(x) = f(z) + f'(z) (x - z) + int_0^z f''(k) p(k) dk + int_z^infty f''(k) c(k) dk
 // where p(k) = max{k - x, 0} and c(k) = max{x - k, 0}.
 //
 // Given strikes k[0], ..., k[n-1] use piecewise linear interpolation
@@ -75,14 +75,14 @@ namespace fsl {
 	static_assert(P_or_NaN<double, std::equal_to<double>>(2, 2));
 #endif // _DEBUG
 	template<class X = double>
-	constexpr bool is_increasing(const std::span<X>& s)
+	constexpr bool is_increasing(const X* b, const X* e)
 	{
-		return std::is_sorted(s.begin(), s.end(), P_or_NaN<X, std::less<X>>);
+		return std::is_sorted(b, e, P_or_NaN<X, std::less<X>>);
 	}
 	template<class X = double>
-	constexpr bool is_deacreasind(const std::span<X>& s)
+	constexpr bool is_decreasing(const X* b, const X* e)
 	{
-		return std::is_sorted(s.begin(), s.end(), P_or_NaN<X, std::greater<X>>);
+		return std::is_sorted(b, e, P_or_NaN<X, std::greater<X>>);
 	}
 
 	template<class X = double>
@@ -90,7 +90,8 @@ namespace fsl {
 	{
 		return -2 * std::log(x / x0) + 2 * (x - x0) / z;
 	}
-	// {f''(k[1]), f''(k[2]), ..., f''(k[n-2])}
+
+	// {*, f''(k[1]), f''(k[2]), ..., f''(k[n-2], *)}
 	template<class X = double>
 	inline X* vswap_weights(X x0, X z, size_t n, const X* k, X* w)
 	{
@@ -99,16 +100,16 @@ namespace fsl {
 		}
 
 		for (size_t i = 0; i < n; ++i) {
-			w[i] = static_payoff(x0, z, k[i]);
+			w[i] = static_payoff(x0, z, k[i]); // w[i] = f(k[i])
 		}
-		if (!difference_quotient(n, k, w)) {
+		if (!difference_quotient(n, k, w)) { // w[i] = (f(k[i + 1]) - f(k[i]))/(k[i + 1] - k[i])
 			return nullptr;
 		}
 
 		// Last difference quotient does not exist so n - 1 size.
-		std::adjacent_difference(w, w + n - 1, w);
+		std::adjacent_difference(w, w + n - 1, w); // w[i] = Δ(fi/ki)
 
-		// f''(k) = 1/k^2 so should be decreasing and positive
+		// f''(k) = 2/k^2 so should be decreasing and positive
 		
 		if (!std::is_sorted(&w[1], &w[n - 1], std::greater<X>())) {
 			return nullptr;
@@ -130,12 +131,12 @@ namespace fsl {
 			return NaN<X>;
 		}
 		if (!std::is_sorted(k, k + n)) return NaN<X>;
-		if (!is_decreasing(p, p + n)) return NaN<X>;
-		if (!is_increasing(c, c + n)) return NaN<X>;
+		if (!is_increasing(p, p + n)) return NaN<X>;
+		if (!is_decreasing(c, c + n)) return NaN<X>;
 
 		std::vector<X> w(n);
-		// +1 to like up with strikes
-		if (!vswap_weights(x0, z, n, k, w.data() + 1)) {
+		// +1 to line up with strikes
+		if (!vswap_weights(x0, z, n, k, w.data())) {
 			return NaN<X>;
 		}
 	
@@ -146,8 +147,17 @@ namespace fsl {
 			s2 += w[i] * p[i];
 			++i;
 		}
-		X m = (w[i] - w[i - 1]) / (k[i] - k[i - 1]); // slope at z	
-		s2 += m;
+		if (i == n - 1) {
+			return NaN<X>; // no calls
+		}
+		// last put/first call
+		X ki_ = k[i - 1];
+		X fi_ = static_payoff(x0, z, ki_);
+		X ki = k[i];
+		X fi = static_payoff(x0, z, ki);
+		X m = 0; // TODO: slope at z	
+		// Add value of linear interpolation through (ki_, fi_) and (ki, fi) at z.
+		s2 += 0; // TODO: Fix Copilot generated "(m * (ki - ki_) + fi - fi_) * w[i]; // slope at z"
 		// calls
 		while (i < n - 1) {
 			s2 += w[i] * c[i];
