@@ -155,9 +155,9 @@ namespace fsl {
 		X fi_ = static_payoff(x0, z, ki_);
 		X ki = k[i];
 		X fi = static_payoff(x0, z, ki);
-		X m = 0; // TODO: slope at z	
+		X m = (fi - fi_) / (ki - ki_); // slope at z
 		// Add value of linear interpolation through (ki_, fi_) and (ki, fi) at z.
-		s2 += 0; // TODO: Fix Copilot generated "(m * (ki - ki_) + fi - fi_) * w[i]; // slope at z"
+		s2 += fi_ + m * (z - ki_); // payoff at z
 		// calls
 		while (i < n - 1) {
 			s2 += w[i] * c[i];

@@ -5,12 +5,14 @@
 using namespace fsl;
 using namespace xll;
 
+#ifdef _DEBUG
 Auto<Open> xao_vswap_test([] {
 
 	test_difference_quotient();
 	
 	return TRUE; // Indicate successful test
 });
+#endif // _DEBUG
 
 AddIn xai_vswap_static_payoff(
 	Function(XLL_DOUBLE, L"?xll_vswap_static_payoff", L"VSWAP.STATIC_PAYOFF")

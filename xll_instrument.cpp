@@ -122,6 +122,59 @@ HANDLEX WINAPI xll_fsl_instrument_cash_deposit_(double u, double r)
 	return h;
 }
 
-// TODO: Implement \\INSTRUMENT.FORWARD_RATE_AGREEMENT and INTEREST_RATE_SWAP
+// IMPLEMENTATION: Forward Rate Agreement
+AddIn xai_fsl_instrument_forward_rate_agreement_(
+	Function(XLL_HANDLEX, L"?xll_fsl_instrument_forward_rate_agreement_", L"\\INSTRUMENT.FORWARD_RATE_AGREEMENT")
+	.Arguments({
+		Arg(XLL_DOUBLE, "u", "is the start time of the FRA in years."),
+		Arg(XLL_DOUBLE, "v", "is the end time of the FRA in years."),
+		Arg(XLL_DOUBLE, "f", "is the forward rate."),
+		})
+		.Uncalced()
+	.Category(CATEGORY)
+	.FunctionHelp("Return a handle to a forward rate agreement from time u to v with forward rate f.")
+);
+HANDLEX WINAPI xll_fsl_instrument_forward_rate_agreement_(double u, double v, double f)
+{
+#pragma XLLEXPORT
+	HANDLEX h = INVALID_HANDLEX;
+	try {
+		handle<instrument<>> fra(new forward_rate_agreement<>(u, v, f));
+		ensure(fra);
+		h = fra.get();
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+	return h;
+}
 
-// TODO: Add instruments to hw5.xlsx and insert a plot of the curve from 0 to 10 years at steps of 0.1 years.
+// IMPLEMENTATION: Interest Rate Swap
+AddIn xai_fsl_instrument_interest_rate_swap_(
+	Function(XLL_HANDLEX, L"?xll_fsl_instrument_interest_rate_swap_", L"\\INSTRUMENT.INTEREST_RATE_SWAP")
+	.Arguments({
+		Arg(XLL_DOUBLE, "u", "is the maturity of the swap in years."),
+		Arg(XLL_DOUBLE, "c", "is the par coupon rate."),
+		Arg(XLL_INT, "freq", "is the payment frequency per year (default is semiannual)."),
+		})
+		.Uncalced()
+	.Category(CATEGORY)
+	.FunctionHelp("Return a handle to an interest rate swap with maturity u, coupon c, and payment frequency n.")
+);
+HANDLEX WINAPI xll_fsl_instrument_interest_rate_swap_(double u, double c, frequency freq)
+{
+#pragma XLLEXPORT
+	HANDLEX h = INVALID_HANDLEX;
+	try {
+		if ((int)freq == 0) {
+			freq = frequency::semiannually; // Default to semiannual if n is zero
+		}
+		handle<instrument<>> irs(new interest_rate_swap<>(u, c, freq));
+		ensure(irs);
+		h = irs.get();
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+	return h;
+}
