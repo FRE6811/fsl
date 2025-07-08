@@ -85,3 +85,5 @@ double WINAPI xll_par_variance(double dt, double x0, double z, _FP12* pk, _FP12*
 
 	return result;
 }
+
+// TODO: Implement VSWAP_PNL.
