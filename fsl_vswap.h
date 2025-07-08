@@ -172,5 +172,16 @@ namespace fsl {
 
 	// TODO: Implement vswap_pnl that takes underlying times and observations
 	// Use formula involving cubic terms
+	template<class X = double>
+	inline X vswap_pnl(size_t n, const X* t, const X* S)
+	{
+		X pnl = 0;
+		for (size_t i = 0; i < n - 1; ++i) {
+			X dS_S = (S[i + 1] - S[i]) / S[i];
+			pnl += std::pow(dS_S, 3);
+		}
+
+		return -2 * pnl / (3 * (t[n - 1] - t[0]));
+	}
 
 } // namespace fsl

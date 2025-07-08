@@ -87,3 +87,27 @@ double WINAPI xll_par_variance(double dt, double x0, double z, _FP12* pk, _FP12*
 }
 
 // TODO: Implement VSWAP_PNL.
+AddIn xai_vswap_pnl(
+	Function(XLL_DOUBLE, L"?xll_vswap_pnl", L"VSWAP.PNL")
+	.Arguments({
+		Arg(XLL_FP, L"t", L"is an array of observation times."),
+		Arg(XLL_FP, L"X", L"is an array of underlying value at each observation time."),
+	})
+	.Category(CATEGORY)
+	.FunctionHelp(L"Return the variance swap PnL.")
+);	
+double WINAPI xll_vswap_pnl(_FP12* pt, _FP12* pX)
+{
+#pragma XLLEXPORT
+	double result = NaN<double>;
+
+	try {
+		ensure(size(*pt) == size(*pX));
+		result = fsl::vswap_pnl(size(*pt), pt->array, pX->array);
+	}
+	catch (const std::exception& ex) {
+		XLL_ERROR(ex.what());
+	}
+
+	return result;
+}
