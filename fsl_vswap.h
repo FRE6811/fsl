@@ -170,4 +170,7 @@ namespace fsl {
 		return s2 / dt;
 	}
 
+	// TODO: Implement vswap_pnl that takes underlying times and observations
+	// Use formula involving cubic terms
+
 } // namespace fsl
