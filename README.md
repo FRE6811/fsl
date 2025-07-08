@@ -1,9 +1,13 @@
 # Financial Software Library
 
-## Build from Scratch
+Option pricing, yield curve bootstrapping, and variance swaps.
 
-From Visual Studio, File/New/Project.../Empty C++ project. 
+# Usage
 
-Configure as dll
+Fork or clone this repository, open `fsl.sln` in Visual Studio, press F5 to build the solution and start Excel with the add-in loaded.
 
-git add submodule https://github.com/xlladdins/xll24
+# See Also
+
+[xll24](https://github.com/xlladdins/xll24)
+
+

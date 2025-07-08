@@ -5,7 +5,7 @@
 // Payoff at t_n is σ^2 = 1/(t_n - t_0) sum_0 <= j < n (ΔX_j/X_j)^2
 // 
 // f(X_n) - f(X_0) = sum_0 <= j < n f(X_{j+1}) - f(X_j)
-//                 = sum_0 <= j < n f'(X_j) ΔX_j + f''(X_j) ΔX_j^2/2 + O(ΔX_j^3)
+//                 = sum_0 <= j < n f'(X_j) ΔX_j + f''(X_j) ΔX_j^2/2 + f'''(X_j) ΔX_j^3/6 + ...
 // Let f''(x) = 2/x^2 so f'(x) = -2/x + c and f(x) = -2 log(x) +  cx
 // sum_0 <= j < n (ΔX_j/X_j)^2 = -2 log(X_n/X_0) + 2 (X_n - X_0)/z + sum_0 <= j < n (-2/X_j) ΔX_j if c = 2/z.
 //                              <static hedge is European option>  <dynamic hedge in futures>
@@ -17,6 +17,9 @@
 // to get slopes f'[i] = (f[i+1] - f[i])/(k[i+1] - k[i]) over [k[i], k[i + 1]]
 // and second derivatives f''[i] = f'[i] - f'[i - 1] at k[1], ... k[n - 2].
 // No put at k[0] and no call at k[n-1] required.
+//
+// The third order error term is f'''(X_j) ΔX_j^3/6 = -2/3 (ΔX_j/X_j)^3.
+// P&L error approximation is 1/(t_n - t_0) sum_0 <= j < n_ -2/3 (ΔX_j/X_j)^3.
 
 #pragma once
 #ifdef _DEBUG
